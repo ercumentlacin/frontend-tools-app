@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import ErrorResponse from '../interfaces/ErrorResponse';
+import { ErrorResponse } from '../interfaces/ErrorResponse';
 
 export function notFound(req: Request, res: Response, next: NextFunction) {
   res.status(StatusCodes.NOT_FOUND);

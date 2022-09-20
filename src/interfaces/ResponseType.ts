@@ -1,4 +1,15 @@
-export default interface ResponseType<T> {
+interface Success {
   success: boolean;
-  data?: T | undefined;
 }
+
+type SuccessWithData<T> = Success & {
+  data?: T | undefined;
+};
+
+type SuccessWithMessage = Success & {
+  message: string;
+};
+
+export type ResponseType<T = undefined> = T extends undefined
+  ? SuccessWithMessage
+  : SuccessWithData<T>;

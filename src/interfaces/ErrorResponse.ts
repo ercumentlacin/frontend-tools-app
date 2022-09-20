@@ -1,7 +1,6 @@
-import ResponseType from './ResponseType';
+import { ResponseType } from './ResponseType';
 
-export default interface ErrorResponse extends ResponseType<undefined> {
+export type ErrorResponse<T = undefined> = ResponseType<T> & {
   stack?: string;
-  message: string;
   details?: unknown;
-}
+};

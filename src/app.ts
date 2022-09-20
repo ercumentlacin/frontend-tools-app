@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 
 import * as middlewares from './middlewares';
-import ResponseType from './interfaces/ResponseType';
+import { ResponseType } from './interfaces/ResponseType';
 
 export default class App {
   public app: Application;
