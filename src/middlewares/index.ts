@@ -19,9 +19,10 @@ export function errorHandler(
       ? res.statusCode
       : StatusCodes.INTERNAL_SERVER_ERROR;
   res.status(statusCode);
+  const stack = process.env.NODE_ENV === 'production' ? '🥞' : err.stack;
   res.json({
     success: false,
     message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack,
+    stack,
   });
 }
