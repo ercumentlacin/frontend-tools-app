@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 import * as middlewares from './middlewares';
 import { ResponseType } from './interfaces/ResponseType';
@@ -37,6 +38,7 @@ export default class App {
       .use(helmet())
       .use(cors())
       .use(express.json())
+      .use(cookieParser())
       .use(express.urlencoded({ extended: true }));
   }
 
