@@ -7,6 +7,8 @@ import morgan from 'morgan';
 
 import * as middlewares from './middlewares';
 import { ResponseType } from './interfaces/ResponseType';
+import connectToDb from './db/connectToDB';
+import AuthRouter from './modules/auth/AuthRouter';
 
 export default class App {
   public app: Application;
@@ -14,6 +16,7 @@ export default class App {
   public constructor() {
     this.app = express();
     this.initializeMiddleware();
+    this.connectToDb();
     this.initializeRoutes();
     this.errorHandler();
   }
@@ -25,6 +28,7 @@ export default class App {
         data: 'Hello World!',
       });
     });
+    this.app.use('/api/v1/auth', AuthRouter);
   }
 
   private initializeMiddleware() {
@@ -38,6 +42,10 @@ export default class App {
 
   private errorHandler() {
     this.app.use(middlewares.notFound).use(middlewares.errorHandler);
+  }
+
+  private connectToDb() {
+    void connectToDb();
   }
 }
 

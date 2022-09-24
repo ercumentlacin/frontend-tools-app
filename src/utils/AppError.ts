@@ -1,10 +1,16 @@
 import { StatusCodes } from 'http-status-codes';
 
-export default class AppError extends Error {
+interface AppErrorType<TDetails> {
+  name: string;
+  httpCode: StatusCodes;
+  details: TDetails;
+}
+
+export default class AppError<T> extends Error implements AppErrorType<T> {
   constructor(
     public readonly name: string,
     public readonly httpCode: StatusCodes,
-    public readonly details: unknown
+    public readonly details: T
   ) {
     super(name);
     this.details = details;

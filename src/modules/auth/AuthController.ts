@@ -1,0 +1,59 @@
+import { Router } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import expressAsyncHandler from 'express-async-handler';
+
+import type {
+  AuthLoginType,
+  AuthRegisterType,
+  AuthSucceeded,
+} from './interface';
+import type HandlerType from '@/interfaces/HandlerType';
+
+import AppError from '@/utils/AppError';
+import AuthService from './AuthService';
+import validate from '@/middlewares/validate';
+import * as authSchemas from './authSchemas';
+
+export default class AuthController {
+  public router: Router;
+
+  public constructor(public readonly authService_: AuthService) {
+    this.router = Router();
+    this.initializeRoutes();
+  }
+
+  private initializeRoutes() {
+    this.router.post(
+      '/register',
+      validate(authSchemas.register),
+      expressAsyncHandler(this.register)
+    );
+    this.router.post(
+      '/login',
+      validate(authSchemas.login),
+      expressAsyncHandler(this.login)
+    );
+  }
+
+  private readonly register: HandlerType<AuthSucceeded, AuthRegisterType> =
+    async (req, res) => {
+      const auth = await this.authService_.register(req.body);
+      if (!(auth instanceof AppError)) {
+        res.status(StatusCodes.CREATED).json({
+          success: true,
+          data: auth,
+        });
+      }
+    };
+
+  private readonly login: HandlerType<AuthSucceeded, AuthLoginType> = async (
+    req,
+    res
+  ) => {
+    const auth = await this.authService_.login(req.body);
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: auth,
+    });
+  };
+}
