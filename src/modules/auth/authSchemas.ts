@@ -20,6 +20,8 @@ export const register = z.object({
       })
       .min(6, 'Password must be at least 6 characters')
       .max(20, 'Password must be less than 20 characters'),
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional(),
   }),
 });
 
@@ -36,5 +38,7 @@ export const login = z.object({
       })
       .min(6, 'Password must be at least 6 characters')
       .max(20, 'Password must be less than 20 characters'),
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional(),
   }),
 });
