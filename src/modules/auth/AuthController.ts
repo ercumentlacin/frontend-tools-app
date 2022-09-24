@@ -6,6 +6,7 @@ import type {
   AuthLoginType,
   AuthRegisterType,
   AuthSucceeded,
+  AuthSucceededWithoutPassword,
 } from './interface';
 import type HandlerType from '@/interfaces/HandlerType';
 
@@ -16,6 +17,7 @@ import * as authSchemas from './authSchemas';
 
 export default class AuthController {
   public router: Router;
+  static ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
   public constructor(public readonly authService_: AuthService) {
     this.router = Router();
@@ -35,25 +37,34 @@ export default class AuthController {
     );
   }
 
-  private readonly register: HandlerType<AuthSucceeded, AuthRegisterType> =
+  private readonly register: HandlerType<
+    AuthSucceededWithoutPassword,
+    AuthRegisterType
+  > = async (req, res) => {
+    const auth = await this.authService_.register(req.body);
+
+    if (!(auth instanceof AppError)) {
+      res.status(StatusCodes.CREATED).json({
+        success: true,
+        data: auth,
+      });
+    }
+  };
+
+  private readonly login: HandlerType<AuthSucceeded | string, AuthLoginType> =
     async (req, res) => {
-      const auth = await this.authService_.register(req.body);
-      if (!(auth instanceof AppError)) {
-        res.status(StatusCodes.CREATED).json({
-          success: true,
-          data: auth,
+      const auth = await this.authService_.login(req.body);
+      if (typeof auth === 'string') {
+        res.cookie('token', auth, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: AuthController.ONE_WEEK,
         });
       }
-    };
 
-  private readonly login: HandlerType<AuthSucceeded, AuthLoginType> = async (
-    req,
-    res
-  ) => {
-    const auth = await this.authService_.login(req.body);
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: auth,
-    });
-  };
+      res.status(StatusCodes.OK).json({
+        success: true,
+        data: auth,
+      });
+    };
 }

@@ -4,11 +4,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 import * as middlewares from './middlewares';
 import { ResponseType } from './interfaces/ResponseType';
 import connectToDb from './db/connectToDB';
 import AuthRouter from './modules/auth/AuthRouter';
+import UserRouter from './modules/user/UserRouter';
 
 export default class App {
   public app: Application;
@@ -29,6 +31,7 @@ export default class App {
       });
     });
     this.app.use('/api/v1/auth', AuthRouter);
+    this.app.use('/api/v1/user', UserRouter);
   }
 
   private initializeMiddleware() {
@@ -37,6 +40,7 @@ export default class App {
       .use(helmet())
       .use(cors())
       .use(express.json())
+      .use(cookieParser())
       .use(express.urlencoded({ extended: true }));
   }
 
