@@ -17,6 +17,10 @@ export function createToken<T extends string | object>(
   return jsonwebtoken.sign(payload, secret, { expiresIn });
 }
 
-export function verifyToken(token: string, secret: string) {
-  return jsonwebtoken.verify(token, secret);
+export function verifyToken(token: string) {
+  return jsonwebtoken.verify(token, process.env.JWT_SECRET as string) as {
+    id: string;
+    iat: number;
+    exp: number;
+  };
 }
