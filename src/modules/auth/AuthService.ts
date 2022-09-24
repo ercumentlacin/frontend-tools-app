@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 import AppError from '@/utils/AppError';
+import { comparePassword, createToken } from '@/utils/password';
 import { StatusCodes } from 'http-status-codes';
 import Auth from './Auth';
 import { AuthLoginType, AuthRegisterType } from './interface';
 
 export default class AuthService {
   public readonly register = async (input: AuthRegisterType) => {
-    const auth = new Auth(input);
-    const result = await auth.save();
+    const doc = await Auth.create(input);
+    const result = await doc.save();
 
     if (result.errors !== undefined) {
       return new AppError(
@@ -15,7 +17,16 @@ export default class AuthService {
         result.errors
       );
     }
-    return result;
+    const data = {
+      avatar: result.avatar,
+      email: result.email,
+      name: result.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      _id: String(doc._id),
+    };
+
+    return data;
   };
 
   public readonly login = async (input: AuthLoginType) => {
@@ -23,9 +34,13 @@ export default class AuthService {
     if (auth === null) {
       throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
     }
-    if (auth.password !== input.password) {
-      throw new AppError('Invalid password', StatusCodes.UNAUTHORIZED, null);
+    if (await comparePassword(input.password, auth.password)) {
+      const token = createToken(
+        { id: auth._id },
+        process.env.JWT_SECRET as string
+      );
+      return token;
     }
-    return auth;
+    throw new AppError('Invalid password', StatusCodes.UNAUTHORIZED, null);
   };
 }
