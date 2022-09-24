@@ -43,4 +43,94 @@ export default class AuthService {
     }
     throw new AppError('Invalid password', StatusCodes.UNAUTHORIZED, null);
   };
+
+  public readonly findMany = async () => {
+    const docs = await Auth.find();
+    const data = docs.map((doc) => ({
+      avatar: doc.avatar,
+      email: doc.email,
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      _id: String(doc._id),
+    }));
+    return data;
+  };
+
+  public readonly findOne = async (id: string) => {
+    const doc = await Auth.findById(id);
+    if (doc === null) {
+      throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
+    }
+    const data = {
+      avatar: doc.avatar,
+      email: doc.email,
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      _id: String(doc._id),
+    };
+    return data;
+  };
+
+  public readonly updateOne = async (id: string, input: AuthRegisterType) => {
+    const isEmailAlreadyExist = await Auth.findOne({ email: input.email });
+    const isEmailExist = isEmailAlreadyExist !== null;
+    const userEmailEqual = isEmailExist
+      ? isEmailAlreadyExist.email === input.email
+      : false;
+
+    if (userEmailEqual) {
+      throw new AppError(
+        'Email already exist',
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        null
+      );
+    }
+    const doc = await Auth.findByIdAndUpdate(id, input, { new: true });
+    if (doc === null) {
+      throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
+    }
+    const data = {
+      avatar: doc.avatar,
+      email: doc.email,
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      _id: String(doc._id),
+    };
+    return data;
+  };
+
+  public readonly deleteOne = async (id: string) => {
+    const doc = await Auth.findByIdAndDelete(id);
+    if (doc === null) {
+      throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
+    }
+    const data = {
+      avatar: doc.avatar,
+      email: doc.email,
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      _id: String(doc._id),
+    };
+    return data;
+  };
+
+  public readonly me = async (id: string) => {
+    const doc = await Auth.findById(id);
+    if (doc === null) {
+      throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
+    }
+    const data = {
+      avatar: doc.avatar,
+      email: doc.email,
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      _id: String(doc._id),
+    };
+    return data;
+  };
 }
