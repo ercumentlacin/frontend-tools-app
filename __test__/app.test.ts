@@ -18,6 +18,7 @@ describe('app', () => {
       success: false,
       message: '🔍 - Not Found - /not-found',
       stack: process.env.NODE_ENV === 'production' ? '🥞' : expect.any(String),
+      details: null,
     });
   });
 });
