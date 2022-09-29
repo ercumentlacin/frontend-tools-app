@@ -31,7 +31,8 @@ describe('middlewares', () => {
       expect(res.json).toHaveBeenCalledWith({
         success: false,
         message: expect.any(String),
-        stack: expect.any(String),
+        stack: expect.any(String) ?? expect.any(Error),
+        details: expect.any(String) ?? null,
       });
     });
   });
