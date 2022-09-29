@@ -6,7 +6,7 @@ import Auth from './Auth';
 import { AuthLoginType, AuthRegisterType } from './interface';
 
 export default class AuthService {
-  public readonly register = async (input: AuthRegisterType) => {
+  public register = async (input: AuthRegisterType) => {
     const doc = await Auth.create(input);
     const result = await doc.save();
 
@@ -17,6 +17,7 @@ export default class AuthService {
         result.errors
       );
     }
+
     const data = {
       avatar: result.avatar,
       email: result.email,
@@ -25,11 +26,10 @@ export default class AuthService {
       updatedAt: doc.updatedAt,
       _id: String(doc._id),
     };
-
     return data;
   };
 
-  public readonly login = async (input: AuthLoginType) => {
+  public login = async (input: AuthLoginType) => {
     const auth = await Auth.findOne({ email: input.email });
     if (auth === null) {
       throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
@@ -44,7 +44,7 @@ export default class AuthService {
     throw new AppError('Invalid password', StatusCodes.UNAUTHORIZED, null);
   };
 
-  public readonly findMany = async () => {
+  public findMany = async () => {
     const docs = await Auth.find();
     const data = docs.map((doc) => ({
       avatar: doc.avatar,
@@ -57,7 +57,7 @@ export default class AuthService {
     return data;
   };
 
-  public readonly findOne = async (id: string) => {
+  public findOne = async (id: string) => {
     const doc = await Auth.findById(id);
     if (doc === null) {
       throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
@@ -73,7 +73,7 @@ export default class AuthService {
     return data;
   };
 
-  public readonly updateOne = async (id: string, input: AuthRegisterType) => {
+  public updateOne = async (id: string, input: AuthRegisterType) => {
     const isEmailAlreadyExist = await Auth.findOne({ email: input.email });
     const isEmailExist = isEmailAlreadyExist !== null;
     const userEmailEqual = isEmailExist
@@ -102,7 +102,7 @@ export default class AuthService {
     return data;
   };
 
-  public readonly deleteOne = async (id: string) => {
+  public deleteOne = async (id: string) => {
     const doc = await Auth.findByIdAndDelete(id);
     if (doc === null) {
       throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
@@ -118,7 +118,7 @@ export default class AuthService {
     return data;
   };
 
-  public readonly me = async (id: string) => {
+  public me = async (id: string) => {
     const doc = await Auth.findById(id);
     if (doc === null) {
       throw new AppError('User not found', StatusCodes.NOT_FOUND, null);
