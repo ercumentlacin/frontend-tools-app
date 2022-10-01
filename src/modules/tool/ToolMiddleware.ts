@@ -29,7 +29,7 @@ export const update = zod.object({
       .string({
         required_error: 'Title is required',
       })
-      .min(20, 'Title must be at least 20 character')
+      .min(3, 'Title must be at least 3 character')
       .max(100, 'Title must be less than 100 characters'),
 
     description: zod.string({

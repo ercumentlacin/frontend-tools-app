@@ -2,7 +2,7 @@ import ToolService from './ToolService';
 import ToolModel from './ToolModel';
 import Tool from './Tool';
 import { BeAnObject, ReturnModelType } from '@typegoose/typegoose/lib/types';
-import * as db from '@/utils/db';
+
 import AppError from '@/utils/AppError';
 import { StatusCodes } from 'http-status-codes';
 
@@ -34,17 +34,6 @@ const utils_ = {
 };
 
 describe('ToolService', () => {
-  beforeAll(async () => {
-    await db.setUp();
-  });
-
-  afterEach(async () => {
-    await db.dropCollections();
-  });
-
-  afterAll(async () => {
-    await db.dropDatabase();
-  });
   let todoModel: ReturnModelType<typeof Tool, BeAnObject>;
   let toolService: ToolService;
 
@@ -73,7 +62,7 @@ describe('ToolService', () => {
 
       const tool: Tool = new ToolModel({
         title: 'Notion',
-        url: 'https://notion.so/',
+        url: 'https://notion.so/1',
         description:
           'All in one tool to organize teams and ideas. Write, plan, collaborate, and get organized. ',
         tags: [

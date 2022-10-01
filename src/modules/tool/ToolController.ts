@@ -22,6 +22,7 @@ export default class TodoController {
 
   public initializeRoutes() {
     this.router.get('/', this.getAll);
+    this.router.get('/search', this.search);
     this.router.get('/:id', validate(middlewares.id), this.getById);
     this.router.post(
       '/',
@@ -35,7 +36,6 @@ export default class TodoController {
       this.update
     );
     this.router.delete('/:id', validate(middlewares.id), this.delete);
-    this.router.get('/search', this.search);
     this.router.delete('/', this.deleteAll);
   }
 
@@ -56,8 +56,8 @@ export default class TodoController {
 
   public search: RequestHandler = expressAsyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-      const { tag } = req.query;
-      const result = await this.service.search(tag as string);
+      const { q } = req.query;
+      const result = await this.service.search(q as string);
       res.status(StatusCodes.OK).json(result);
     }
   );

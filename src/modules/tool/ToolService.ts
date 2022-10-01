@@ -1,6 +1,7 @@
 import AppError from '@/utils/AppError';
 import { StatusCodes } from 'http-status-codes';
 import Tool from './Tool';
+import toolCreator from './toolCreator';
 import ToolModel from './ToolModel';
 
 export default class ToolService {
@@ -52,7 +53,8 @@ export default class ToolService {
 
   public getAll = async () => {
     const tools = await this.model.find();
-    return tools;
+    const result: Tool[] = tools.map((tool) => toolCreator(tool));
+    return result;
   };
 
   public getById = async (id: string) => {
