@@ -4,8 +4,11 @@ import { StatusCodes } from 'http-status-codes';
 import { ErrorResponse } from '../interfaces/ErrorResponse';
 
 export function notFound(req: Request, res: Response, next: NextFunction) {
-  res.status(StatusCodes.NOT_FOUND);
-  const error = new Error(`🔍 - Not Found - ${req.originalUrl}`);
+  const error = new AppError(
+    `🔍 - Not Found - ${req.originalUrl}`,
+    StatusCodes.NOT_FOUND,
+    null
+  );
   next(error);
 }
 

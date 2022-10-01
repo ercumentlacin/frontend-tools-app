@@ -11,6 +11,7 @@ import { ResponseType } from './interfaces/ResponseType';
 import connectToDb from './db/connectToDB';
 import AuthRouter from './modules/auth/AuthRouter';
 import UserRouter from './modules/user/UserRouter';
+import ToolRouter from './modules/tool/ToolRouter';
 
 export default class App {
   public app: Application;
@@ -32,6 +33,7 @@ export default class App {
     });
     this.app.use('/api/v1/auth', AuthRouter);
     this.app.use('/api/v1/user', UserRouter);
+    this.app.use('/api/v1/tool', ToolRouter);
   }
 
   private initializeMiddleware() {
@@ -49,6 +51,8 @@ export default class App {
   }
 
   private connectToDb() {
+    if (process.env.NODE_ENV === 'test') return;
+
     void connectToDb();
   }
 }

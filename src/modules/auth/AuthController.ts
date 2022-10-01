@@ -56,7 +56,7 @@ export default class AuthController {
       const auth = await this.authService_.login(req.body);
       if (typeof auth === 'string') {
         res.cookie('token', auth, {
-          httpOnly: true,
+          httpOnly: process.env.NODE_ENV === 'production',
           secure: process.env.NODE_ENV === 'production',
           maxAge: AuthController.ONE_WEEK,
         });

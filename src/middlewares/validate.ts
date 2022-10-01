@@ -12,8 +12,7 @@ const validate = <T extends AnyZodObject>(schema: T): RequestHandler => {
         params: req.params,
       });
       return next();
-    } catch (error: ZodError | Error | unknown) {
-      console.log('validateError :>> ', error);
+    } catch (error: ZodError | Error | unknown | any) {
       if (error instanceof ZodError) {
         return next(
           new AppError(
@@ -26,6 +25,7 @@ const validate = <T extends AnyZodObject>(schema: T): RequestHandler => {
           )
         );
       }
+
       return next(error);
     }
   };
