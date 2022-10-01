@@ -51,6 +51,8 @@ export default class App {
   }
 
   private connectToDb() {
+    if (process.env.NODE_ENV === 'test') return;
+
     void connectToDb();
   }
 }

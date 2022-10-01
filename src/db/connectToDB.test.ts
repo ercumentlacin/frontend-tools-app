@@ -14,7 +14,7 @@ describe('connectToDb()', () => {
       .finally(done);
   });
 
-  test('should trhow an error if MONGO_URI is undefined', (done) => {
+  test('should throw an error if MONGO_URI is undefined', (done) => {
     process.env.MONGO_URI = undefined;
 
     connectToDb()
