@@ -6,6 +6,9 @@ import ToolModel from './ToolModel';
 import { app } from '@/app';
 import toolCreator from './toolCreator';
 import Tool from './Tool';
+import Auth from '../auth/Auth';
+import nodeMocksHttp from 'node-mocks-http';
+import AppError from '@/utils/AppError';
 
 const utils = {
   async createTool(data?: Tool) {
@@ -197,14 +200,6 @@ describe('ToolController', () => {
     });
 
     test('should update a tool', async () => {
-      const tool = await utils.createTool({
-        url: 'https://notion.so/1',
-        description: 'test',
-        tags: ['test'],
-        title: 'test',
-        userId: '123',
-      });
-
       await request(app)
         .post('/api/v1/auth/register')
         .send({
@@ -225,6 +220,16 @@ describe('ToolController', () => {
         .set('Accept', 'application/json');
 
       const cookie = requestForLogin.body.data as string;
+      const auth = await Auth.findOne({ email: 'ercu@gmail.com' });
+      const tool = await utils.createTool({
+        userId: String(auth?._id),
+        description: 'test',
+        tags: ['test'],
+        title: 'test',
+        url: 'https://test.com',
+      });
+      tool.userId = String(auth?._id);
+
       const response = await request(app)
         .put(`/api/v1/tool/${String(tool._id)}`)
         .send({
@@ -232,6 +237,7 @@ describe('ToolController', () => {
           title: tool.title,
           description: tool.description,
           tags: tool.tags,
+          userId: tool.userId,
         })
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json')
@@ -245,6 +251,97 @@ describe('ToolController', () => {
 
       expect(response.status).toBe(StatusCodes.OK);
     });
+
+    test('should UNAUTHORIZED', async () => {
+      const userAlex = {
+        email: 'alex@gmail.com',
+        password: '123456',
+        name: 'alex',
+      };
+      const userWalter = {
+        email: 'walter@gmail.com',
+        password: '123456',
+        name: 'walter',
+      };
+
+      const alexRegister = await new Auth(userAlex).save();
+      const walterRegister = await new Auth(userWalter).save();
+
+      const savedTool = await new ToolModel({
+        description: 'test',
+        title: 'test',
+        tags: ['test'],
+        url: 'http://www.google.com',
+        userId: String(walterRegister?._id),
+      }).save();
+
+      const userWalterLoginRequest = await request(app)
+        .post('/api/v1/auth/login')
+        .send(userWalter)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      let cookie = userWalterLoginRequest.body.data as string;
+
+      console.log({
+        alexRegister: alexRegister?._id,
+        walterRegister: walterRegister?._id,
+      });
+
+      savedTool.userId = String(walterRegister?._id);
+      console.log('savedTool?.userId :>> ', savedTool?.userId);
+      const userAlexLoginRequest = await request(app)
+        .post('/api/v1/auth/login')
+        .send(userAlex)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      cookie = userAlexLoginRequest.body.data as string;
+
+      const result = await request(app)
+        .put(`/api/v1/tool/${String(savedTool._id)}`)
+        .send(savedTool.toJSON())
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .set('Cookie', [`token=${cookie}`]);
+
+      expect(result.status).toBe(StatusCodes.UNAUTHORIZED);
+
+      // expect(requestForUpdate.status).toBe(StatusCodes.UNAUTHORIZED);
+    });
+
+    test('should return Tool not found', async () => {
+      const userAlex = {
+        email: 'alex@gmail.com',
+        password: '123456',
+        name: 'alex',
+      };
+
+      const alexRegister = await new Auth(userAlex).save();
+
+      const userAlexLoginRequest = await request(app)
+        .post('/api/v1/auth/login')
+        .send(userAlex)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const cookie = userAlexLoginRequest.body.data as string;
+
+      const result = await request(app)
+        .put(`/api/v1/tool/${String(alexRegister?._id)}`)
+        .send({
+          description: 'test',
+          title: 'test',
+          tags: ['test'],
+          url: 'http://www.google.com',
+          userId: String(alexRegister?._id),
+        })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .set('Cookie', [`token=${cookie}`]);
+
+      expect(result.status).toBe(StatusCodes.NOT_FOUND);
+    });
   });
 
   describe('delete()', () => {
@@ -253,8 +350,6 @@ describe('ToolController', () => {
     });
 
     test('should delete a tool', async () => {
-      const tool = await utils.createTool();
-
       await request(app)
         .post('/api/v1/auth/register')
         .send({
@@ -275,6 +370,16 @@ describe('ToolController', () => {
         .set('Accept', 'application/json');
 
       const cookie = requestForLogin.body.data as string;
+      const auth = await Auth.findOne({ email: 'ercu@gmail.com' });
+      const tool = await utils.createTool({
+        userId: String(auth?._id),
+        description: 'test',
+        tags: ['test'],
+        title: 'test',
+        url: 'https://test.com',
+      });
+
+      tool.userId = auth?._id;
 
       const response = await request(app)
         .delete(`/api/v1/tool/${String(tool._id)}`)

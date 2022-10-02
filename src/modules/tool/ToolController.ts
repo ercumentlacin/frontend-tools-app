@@ -26,16 +26,24 @@ export default class TodoController {
     this.router.get('/:id', validate(middlewares.id), this.getById);
     this.router.post(
       '/',
-      verifyToken,
+      expressAsyncHandler(verifyToken),
       validate(middlewares.create),
       this.create
     );
     this.router.put(
       '/:id',
       validateAll([middlewares.id, middlewares.update]),
+      expressAsyncHandler(verifyToken),
+      expressAsyncHandler(middlewares.isToolCreator),
       this.update
     );
-    this.router.delete('/:id', validate(middlewares.id), this.delete);
+    this.router.delete(
+      '/:id',
+      validate(middlewares.id),
+      verifyToken,
+      expressAsyncHandler(middlewares.isToolCreator),
+      this.delete
+    );
     this.router.delete('/', this.deleteAll);
   }
 
