@@ -1,4 +1,9 @@
+import AppError from '@/utils/AppError';
 import zod from 'zod';
+import * as express from 'express';
+import { StatusCodes } from 'http-status-codes';
+import RequestWithUser from '@/interfaces/RequestWithUser';
+import ToolModel from './ToolModel';
 
 export const create = zod.object({
   body: zod.object({
@@ -57,3 +62,29 @@ export const search = zod.object({
     }),
   }),
 });
+
+export const isToolCreator = async (
+  req: RequestWithUser,
+  _res: express.Response,
+  next: express.NextFunction
+) => {
+  const { id } = req.params;
+
+  const requestUserId = typeof req.user === 'string' ? req.user : req.user?.id;
+
+  const tool = await ToolModel.findById(id);
+
+  if (tool === null) {
+    throw new AppError('Tool not found', StatusCodes.NOT_FOUND, null);
+  }
+  console.log(req.body.userId, requestUserId, tool.userId);
+  if (req.body.userId !== tool.userId) {
+    throw new AppError(
+      'You are not authorized to perform this action',
+      StatusCodes.UNAUTHORIZED,
+      null
+    );
+  }
+
+  next();
+};

@@ -21,6 +21,7 @@ export default function verifyToken(
       process.env.TOKEN_SECRET as string
     );
     req.user = verified;
+    req.body.userId = typeof verified === 'string' ? verified : verified.id;
     next();
   } catch (err) {
     next(new AppError('Invalid Token', StatusCodes.UNAUTHORIZED, null));
